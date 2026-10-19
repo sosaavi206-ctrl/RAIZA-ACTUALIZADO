@@ -1,4 +1,4 @@
-@RAIZA_HostAddress = https://localhost:7194
+@RAIZA_HostAddress = https://localhost:7248
 # O si usas http: http://localhost:5180
 
 ### 1. Diagnóstico de la API y de la Base de Datos
