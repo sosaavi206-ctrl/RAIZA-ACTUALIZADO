@@ -8,7 +8,7 @@ using RAIZA.Interfaces;
 using RAIZA.Repositories;
 using RAIZA.Services;
 
-internal class Program
+public partial class Program
 {
     private const string PoliticaCors = "Frontend";
 

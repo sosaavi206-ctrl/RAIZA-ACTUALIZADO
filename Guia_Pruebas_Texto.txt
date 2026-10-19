@@ -1,0 +1,341 @@
+﻿GUÍA DE PRUEBAS DE SOFTWARE
+Conceptos, tipos de pruebas y pruebas unitarias en C# con ASP.NET Core Web API
+Material de apoyo – Tecnólogo en Análisis y Desarrollo de Software (ADSO)
+Octubre de 2026
+Contenido
+TOC \h \o "1-2"
+1. Conceptos básicos de las pruebas de software
+Una prueba de software es el proceso de ejecutar un sistema o componente para verificar que cumple los requisitos y detectar defectos antes de que lleguen a producción. Probar no demuestra que el software está libre de errores; reduce el riesgo al aumentar la confianza en su calidad.
+1.1 Glosario esencial
+Concepto
+Definición
+Verificación
+¿Estamos construyendo el producto correctamente? Comprueba que el software cumple las especificaciones.
+Validación
+¿Estamos construyendo el producto correcto? Comprueba que satisface la necesidad real del usuario.
+Caso de prueba
+Conjunto de entradas, condiciones de ejecución y resultado esperado para verificar un comportamiento.
+Error, defecto y falla
+El error lo comete una persona; el defecto es la huella que queda en el código; la falla es el comportamiento incorrecto observado al ejecutarlo.
+Cobertura
+Porcentaje del código (líneas, ramas, condiciones) ejecutado por las pruebas.
+Regresión
+Que algo que funcionaba deje de funcionar tras un cambio en el sistema.
+Dobles de prueba
+Objetos que reemplazan dependencias reales: dummy, stub (devuelve datos fijos), fake (implementación simplificada), mock (verifica interacciones) y spy.
+SUT
+System Under Test: el componente que se está probando.
+Patrón AAA
+Arrange (preparar), Act (ejecutar), Assert (verificar). Estructura estándar de una prueba unitaria.
+Pruebas automatizadas
+Pruebas ejecutadas por código o herramientas, repetibles en cada cambio y en la integración continua (CI).
+1.2 Principios de las pruebas
+Las pruebas muestran la presencia de defectos, no su ausencia.
+Probar todo es imposible; se priorizan los riesgos y las funciones críticas.
+Probar temprano reduce el costo de corregir (shift-left).
+Los defectos tienden a agruparse en pocos módulos (principio de Pareto).
+Las pruebas se desgastan: hay que revisarlas y actualizarlas (paradoja del pesticida).
+El contexto determina cómo se prueba: un sistema bancario y una app de juegos requieren estrategias distintas.
+1.3 La pirámide de pruebas
+La pirámide orienta la proporción de pruebas: muchas pruebas unitarias en la base (rápidas y baratas), un número moderado de pruebas de integración en el medio y pocas pruebas de extremo a extremo (E2E) en la cima (lentas y costosas).
+Nivel
+Cantidad recomendada
+Velocidad
+Costo de mantenimiento
+E2E / UI
+Pocas
+Lenta
+Alto
+Integración
+Moderadas
+Media
+Medio
+Unitarias
+Muchas
+Muy rápida
+Bajo
+2. Tipos de pruebas y cómo realizarlas
+Las pruebas se clasifican según tres criterios: el nivel en que se ejecutan, el enfoque (qué se conoce del código) y el objetivo que persiguen.
+2.1 Por nivel
+Pruebas unitarias
+Prueban una unidad aislada (método o clase) con sus dependencias simuladas.
+Cómo hacerlas: identifica la lógica a probar, simula las dependencias con Moq, aplica el patrón AAA y cubre el caso feliz, los valores límite y los errores.
+Herramientas: xUnit, NUnit, MSTest, Moq, FluentAssertions.
+Pruebas de integración
+Verifican que varios componentes funcionan correctamente en conjunto (por ejemplo controlador, servicio y base de datos).
+Cómo hacerlas: levanta la aplicación en memoria con WebApplicationFactory, usa una base de datos de prueba (SQLite en memoria o Testcontainers) y llama a los endpoints reales.
+Pruebas de sistema
+Validan el sistema completo contra los requisitos, en un entorno similar al de producción.
+Cómo hacerlas: diseña escenarios completos de negocio y ejecútalos sobre un ambiente de pruebas desplegado, con datos representativos.
+Pruebas de aceptación (UAT)
+El usuario o cliente confirma que el sistema resuelve su necesidad y autoriza el paso a producción.
+Cómo hacerlas: define criterios de aceptación en formato Given/When/Then, ejecútalos con el usuario y registra la aprobación. Pueden automatizarse con SpecFlow o Reqnroll.
+2.2 Por enfoque
+Caja negra
+Se prueba sin conocer el código, solo con entradas y salidas esperadas.
+Partición de equivalencia: agrupa las entradas en clases que se comportan igual y prueba un representante de cada una.
+Valores límite: prueba los bordes de cada rango (mínimo, máximo y sus vecinos).
+Tabla de decisión: combina condiciones y acciones para cubrir reglas de negocio complejas.
+Transición de estados: verifica los cambios de estado válidos e inválidos de una entidad (por ejemplo un pedido).
+Caja blanca
+Se prueba con conocimiento de la estructura interna del código.
+Cobertura de sentencias: cada línea se ejecuta al menos una vez.
+Cobertura de ramas: cada decisión (if, switch) toma todos sus resultados.
+Cobertura de condiciones y de caminos: se evalúan las condiciones individuales y los caminos independientes del flujo.
+2.3 Por objetivo
+Tipo
+Qué verifica
+Cómo hacerla
+Funcionales
+Que el sistema hace lo que debe hacer según los requisitos.
+Casos positivos y negativos derivados de las historias de usuario o requisitos.
+Regresión
+Que los cambios no rompen lo existente.
+Reejecutar la suite automatizada en cada cambio mediante CI/CD (GitHub Actions, Azure DevOps).
+Humo (smoke)
+Que las funciones críticas están vivas tras un despliegue.
+Revisión rápida: login, endpoint de salud, flujo principal.
+Rendimiento
+Tiempos de respuesta y capacidad bajo carga.
+Definir métricas, simular usuarios concurrentes con k6, JMeter o NBomber y analizar cuellos de botella.
+Seguridad
+Vulnerabilidades (inyección SQL, XSS, autenticación rota, OWASP Top 10).
+Pruebas de autorización por rol, validación de entradas, escaneo con OWASP ZAP y análisis estático con SonarQube.
+Usabilidad y accesibilidad
+Facilidad de uso y cumplimiento de WCAG.
+Pruebas con usuarios reales, heurísticas de Nielsen y auditorías de accesibilidad.
+Compatibilidad
+Funcionamiento en navegadores, dispositivos y versiones.
+Matriz de combinaciones con herramientas como BrowserStack.
+Exploratorias
+Hallazgos no previstos en los guiones.
+Sesiones cronometradas sin guion fijo, con notas y objetivos (charters).
+De contrato
+Que consumidor y proveedor de una API respetan el acuerdo.
+Pact: el consumidor define el contrato y el proveedor lo verifica.
+End-to-End (E2E)
+El flujo completo del usuario a través de la interfaz.
+Automatizar escenarios con Playwright, Selenium o Cypress.
+Tipos de pruebas de rendimiento
+Carga: comportamiento con el volumen de usuarios esperado.
+Estrés: llevar el sistema más allá de su límite para ver cómo falla y se recupera.
+Pico (spike): aumentos súbitos de tráfico.
+Resistencia (soak): carga sostenida durante horas para detectar fugas de memoria.
+3. Implementar pruebas unitarias en ASP.NET Core Web API
+Esta sección construye, paso a paso, un conjunto de pruebas con xUnit, Moq y FluentAssertions para una API sencilla de productos.
+3.1 Crear el proyecto de pruebas
+dotnet new xunit -n MiApi.Tests
+cd MiApi.Tests
+dotnet add reference ../MiApi/MiApi.csproj
+dotnet add package Moq
+dotnet add package FluentAssertions
+dotnet add package Microsoft.EntityFrameworkCore.InMemory
+dotnet add package Microsoft.AspNetCore.Mvc.Testing
+Estructura recomendada de la solución:
+MiApi/
+MiApi.Tests/
+Services/
+Controllers/
+Integration/
+3.2 Código a probar
+Un repositorio (abstraído por una interfaz), un servicio con reglas de negocio y un controlador.
+public class Producto
+{
+public int Id { get; set; }
+public string Nombre { get; set; } = string.Empty;
+public decimal Precio { get; set; }
+}
+public interface IProductoRepository
+{
+Task<Producto?> ObtenerPorIdAsync(int id);
+Task AgregarAsync(Producto producto);
+}
+public class ProductoService
+{
+private readonly IProductoRepository _repo;
+public ProductoService(IProductoRepository repo) => _repo = repo;
+public async Task<Producto> ObtenerAsync(int id)
+{
+var p = await _repo.ObtenerPorIdAsync(id);
+return p ?? throw new KeyNotFoundException($"Producto {id} no existe");
+}
+public async Task CrearAsync(Producto p)
+{
+if (p.Precio <= 0)
+throw new ArgumentException("El precio debe ser mayor a cero");
+await _repo.AgregarAsync(p);
+}
+}
+[ApiController]
+[Route("api/[controller]")]
+public class ProductosController : ControllerBase
+{
+private readonly ProductoService _service;
+public ProductosController(ProductoService service) => _service = service;
+[HttpGet("{id}")]
+public async Task<ActionResult<Producto>> Get(int id)
+{
+try { return Ok(await _service.ObtenerAsync(id)); }
+catch (KeyNotFoundException) { return NotFound(); }
+}
+}
+3.3 Pruebas del servicio con Moq
+using FluentAssertions;
+using Moq;
+using Xunit;
+public class ProductoServiceTests
+{
+private readonly Mock<IProductoRepository> _repoMock = new();
+private readonly ProductoService _sut;
+public ProductoServiceTests() => _sut = new ProductoService(_repoMock.Object);
+[Fact]
+public async Task ObtenerAsync_ProductoExiste_RetornaProducto()
+{
+// Arrange
+var esperado = new Producto { Id = 1, Nombre = "Cuero", Precio = 50 };
+_repoMock.Setup(r => r.ObtenerPorIdAsync(1)).ReturnsAsync(esperado);
+// Act
+var resultado = await _sut.ObtenerAsync(1);
+// Assert
+resultado.Should().BeEquivalentTo(esperado);
+}
+[Fact]
+public async Task ObtenerAsync_NoExiste_LanzaKeyNotFound()
+{
+_repoMock.Setup(r => r.ObtenerPorIdAsync(99)).ReturnsAsync((Producto?)null);
+Func<Task> act = () => _sut.ObtenerAsync(99);
+await act.Should().ThrowAsync<KeyNotFoundException>();
+}
+[Theory]
+[InlineData(0)]
+[InlineData(-5)]
+public async Task CrearAsync_PrecioInvalido_LanzaArgumentException(decimal precio)
+{
+var p = new Producto { Nombre = "X", Precio = precio };
+await Assert.ThrowsAsync<ArgumentException>(() => _sut.CrearAsync(p));
+_repoMock.Verify(r => r.AgregarAsync(It.IsAny<Producto>()), Times.Never);
+}
+}
+[Fact] define una prueba fija; [Theory] con [InlineData] ejecuta la misma prueba con varios conjuntos de datos.
+3.4 Pruebas del controlador
+public class ProductosControllerTests
+{
+[Fact]
+public async Task Get_NoExiste_RetornaNotFound()
+{
+var repo = new Mock<IProductoRepository>();
+repo.Setup(r => r.ObtenerPorIdAsync(It.IsAny<int>()))
+.ReturnsAsync((Producto?)null);
+var controller = new ProductosController(new ProductoService(repo.Object));
+var result = await controller.Get(5);
+result.Result.Should().BeOfType<NotFoundResult>();
+}
+[Fact]
+public async Task Get_Existe_RetornaOkConProducto()
+{
+var repo = new Mock<IProductoRepository>();
+repo.Setup(r => r.ObtenerPorIdAsync(1))
+.ReturnsAsync(new Producto { Id = 1, Nombre = "A", Precio = 10 });
+var controller = new ProductosController(new ProductoService(repo.Object));
+var result = await controller.Get(1);
+var ok = result.Result.Should().BeOfType<OkObjectResult>().Subject;
+((Producto)ok.Value!).Id.Should().Be(1);
+}
+}
+3.5 Pruebas con EF Core en memoria
+var options = new DbContextOptionsBuilder<AppDbContext>()
+.UseInMemoryDatabase(Guid.NewGuid().ToString())
+.Options;
+using var ctx = new AppDbContext(options);
+ctx.Productos.Add(new Producto { Id = 1, Nombre = "A", Precio = 10 });
+await ctx.SaveChangesAsync();
+var repo = new ProductoRepository(ctx);
+var p = await repo.ObtenerPorIdAsync(1);
+Assert.NotNull(p);
+Advertencia: el proveedor InMemory no se comporta igual que SQL Server (no soporta transacciones ni restricciones relacionales). Para pruebas más fieles usa SQLite en memoria o Testcontainers.
+3.6 Prueba de integración con WebApplicationFactory
+Primero expón la clase Program agregando esta línea al final de Program.cs:
+public partial class Program { }
+public class ProductosIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+{
+private readonly HttpClient _client;
+public ProductosIntegrationTests(WebApplicationFactory<Program> factory)
+{
+_client = factory.WithWebHostBuilder(builder =>
+{
+builder.ConfigureServices(services =>
+{
+// Reemplazar el DbContext real por uno en memoria
+var d = services.SingleOrDefault(
+s => s.ServiceType == typeof(DbContextOptions<AppDbContext>));
+if (d != null) services.Remove(d);
+services.AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase("TestDb"));
+});
+}).CreateClient();
+}
+[Fact]
+public async Task GetProducto_Inexistente_Retorna404()
+{
+var response = await _client.GetAsync("/api/productos/999");
+response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+}
+}
+3.7 Ejecutar las pruebas y medir la cobertura
+dotnet test
+dotnet test --collect:"XPlat Code Coverage"
+dotnet test --filter "FullyQualifiedName~ProductoServiceTests"
+Para generar un reporte visual de cobertura:
+dotnet tool install -g dotnet-reportgenerator-globaltool
+reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coverage
+3.8 Comparativa de frameworks de prueba
+Framework
+Atributo de prueba
+Prueba con datos
+Observación
+xUnit
+[Fact]
+[Theory] + [InlineData]
+Predeterminado en plantillas modernas de .NET; crea una instancia nueva de la clase por prueba.
+NUnit
+[Test]
+[TestCase]
+Muy flexible; usa [SetUp] y [TearDown].
+MSTest
+[TestMethod]
+[DataRow]
+Integrado con Visual Studio; usa [TestInitialize].
+4. Buenas prácticas
+Nombra las pruebas con el formato Metodo_Escenario_ResultadoEsperado.
+Cada prueba verifica una sola cosa y es independiente de las demás (sin orden de ejecución).
+Una prueba unitaria no debe tocar base de datos, red ni sistema de archivos.
+Usa interfaces e inyección de dependencias para poder simular colaboradores.
+Prueba comportamiento observable, no detalles de implementación.
+Cubre el caso feliz, los valores límite y los errores.
+Mantén las pruebas rápidas, determinísticas y legibles; evita lógica (if, bucles) dentro de ellas.
+Integra las pruebas en el pipeline de CI para que corran en cada commit.
+Prioriza la cobertura de la lógica de negocio sobre el porcentaje bruto: 100 % de cobertura no garantiza calidad.
+Trata el código de pruebas como código de producción: refactoriza y revisa.
+4.1 Errores comunes
+Mockear todo: pruebas acopladas a la implementación que se rompen con cada refactor.
+Pruebas dependientes entre sí: compartir estado entre pruebas produce fallos intermitentes.
+Ignorar pruebas fallidas: una suite en la que se acepta el rojo pierde su valor.
+Asserts débiles: verificar solo que no hay excepción en lugar de validar el resultado.
+5. Lista de verificación rápida
+Verificación
+Estado
+Proyecto de pruebas creado y referenciado
+☐
+Dependencias abstraídas con interfaces
+☐
+Pruebas unitarias de servicios con Moq
+☐
+Pruebas de controladores (códigos HTTP correctos)
+☐
+Casos de borde y de error cubiertos
+☐
+Al menos una prueba de integración por endpoint crítico
+☐
+Cobertura medida y revisada
+☐
+Suite integrada en CI/CD
+☐

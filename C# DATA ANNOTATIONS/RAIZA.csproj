@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -6,6 +6,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>8c875292-ef20-42cc-88a5-8e8591c1e915</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="RAIZA.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="RAIZA.Tests\**" />
+    <Content Remove="RAIZA.Tests\**" />
+    <EmbeddedResource Remove="RAIZA.Tests\**" />
+    <None Remove="RAIZA.Tests\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.17.1" />

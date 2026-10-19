@@ -1,6 +1,66 @@
-@RAIZA_HostAddress = http://localhost:5180
+@RAIZA_HostAddress = https://localhost:7194
+# O si usas http: http://localhost:5180
 
-GET {{RAIZA_HostAddress}}/weatherforecast/
+### 1. Diagnóstico de la API y de la Base de Datos
+GET {{RAIZA_HostAddress}}/api/Auth/Diagnostico
+Accept: application/json
+
+###
+
+### 2. Login de Usuario (Obtener Token JWT)
+# Reemplaza con tus credenciales de prueba
+# @name login
+POST {{RAIZA_HostAddress}}/api/Auth/Login
+Content-Type: application/json
+
+{
+  "email": "admin@raiza.com",
+  "password": "Password123*",
+  "recaptchaToken": "test"
+}
+
+###
+
+### 3. Guardar el Token de la respuesta
+@authToken = {{login.response.body.token}}
+
+###
+
+### 4. Consultar catálogo público de Módulos
+GET {{RAIZA_HostAddress}}/api/Modulo
+Accept: application/json
+
+###
+
+### 5. Consultar catálogo de Kits de Robótica
+GET {{RAIZA_HostAddress}}/api/ClassKit
+Accept: application/json
+
+###
+
+### 6. Consultar Tareas de Aprendizaje
+GET {{RAIZA_HostAddress}}/api/Tarea
+Accept: application/json
+
+###
+
+### 7. Consultar Usuarios (Requiere Rol Administrador)
+GET {{RAIZA_HostAddress}}/api/Usuario
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+###
+
+### 8. Consultar Mis Pedidos (Requiere Token de Estudiante)
+GET {{RAIZA_HostAddress}}/api/PedidoKit/mis-pedidos
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+###
+
+### 9. Consultar Mis Tareas Asignadas (Requiere Token de Estudiante)
+GET {{RAIZA_HostAddress}}/api/Tarea/mis-tareas
+Authorization: Bearer {{authToken}}
 Accept: application/json
 
 ###
