@@ -29,7 +29,7 @@ Las pruebas garantizan que la API backend en C# / .NET 8 y sus interfaces web as
 | **Dobles de Prueba (Mocks)** | Uso de la librería **Moq** (`Mock<IUsuarioI>`, `Mock<IEntregaTareaI>`) para aislar la lógica de los controladores sin depender de SQL Server en vivo. |
 | **Particiones de Equivalencia** | Clasificación de entradas válidas vs. inválidas en métodos de pago (`Tarjeta`, `Nequi`, `PSE` vs. cadenas vacías, valores nulos, métodos no soportados). |
 | **Análisis de Valores Límite** | Evaluación de contraseñas (longitud mínima de 8 caracteres; casos probados: 7 caracteres -> Falla, 8 caracteres -> Pasa) y tamaño de archivos (límite exacto de 10 MB vs. 10 MB + 1 byte). |
-| **Pirámide de Pruebas** | Base sólida de **117 pruebas unitarias automatizadas** en xUnit de ejecución ultra rápida (< 1 segundo), complementadas con pruebas de integración y pruebas funcionales de interfaz. |
+| **Pirámide de Pruebas** | Base sólida de **261 pruebas unitarias automatizadas** en xUnit de ejecución ultra rápida (~1 segundo), con cobertura del 100% de los 21 controladores y componentes de la API, complementadas con pruebas de integración y funcionales. |
 
 ---
 
@@ -48,17 +48,28 @@ C# DATA ANNOTATIONS/RAIZA.Tests/
 ├── Helpers/
 │   └── TestUserHelper.cs                   # Generador de contextos simulados de autenticación JWT y roles
 ├── Unitarias/
-│   ├── UsuarioControllerTests.cs          # Códigos HTTP, privacidad de hash y reglas de alta/consulta
-│   ├── TareaControllerTests.cs            # Consulta de tareas, entregas de estudiantes y validaciones
-│   ├── PedidoKitControllerTests.cs        # Gestión y aislamiento de pedidos de kits, compras enlazadas
-│   ├── EntregaTareaControllerTests.cs     # Control de acceso dueño-vs-gestor y sanitización de notas
-│   ├── ModuloControllerTests.cs           # Catálogo de niveles y creación de módulos educativos
+│   ├── AdministradorControllerTests.cs    # Gestión de administradores, asignación de roles y unicidad
+│   ├── AuthControllerTests.cs             # Autenticación, login, registro, diagnóstico y restablecimiento
+│   ├── AutorizacionTests.cs               # Validación de claims JWT ("IdUsuario") y roles gestores ("EsGestor")
+│   ├── CertificadoControllerTests.cs      # Emisión, consulta segura y privacidad de certificados de robótica
+│   ├── ClaseParticipanteControllerTests.cs# Inscripciones a clases virtuales, validación de duplicados
+│   ├── ClasesEnVivoControllerTests.cs     # Programación de sesiones virtuales y enlaces de salas
 │   ├── ClassKitControllerTests.cs         # Catálogo de kits de robótica, stock y precios
 │   ├── CompraControllerTests.cs           # Aislamiento y consulta de comprobantes de pago
+│   ├── EntregaTareaControllerTests.cs     # Control de acceso dueño-vs-gestor y sanitización de notas
 │   ├── EstudianteControllerTests.cs       # Consulta de perfil y control de acceso estudiantil
-│   ├── UtilidadesPagoTests.cs             # Particiones de equivalencia y normalización de compras/pedidos
-│   ├── AutorizacionTests.cs               # Validación de claims JWT ("IdUsuario") y roles gestores ("EsGestor")
-│   └── SeguridadArchivosTests.cs          # Whitelist de extensiones y validación de límites de 10 MB
+│   ├── InstructorControllerTests.cs       # Perfiles docentes, validación de rol y unicidad
+│   ├── LeccionControllerTests.cs          # Catálogo y secuenciamiento de lecciones por módulo
+│   ├── ModuloControllerTests.cs           # Catálogo de niveles y creación de módulos educativos
+│   ├── NotificacionControllerTests.cs     # Mensajería interna, aislamiento por usuario destinatario
+│   ├── PedidoKitControllerTests.cs        # Gestión y aislamiento de pedidos de kits, compras enlazadas
+│   ├── ProgresoControllerTests.cs         # Seguimiento porcentual y completitud de módulos por estudiante
+│   ├── ProgresoLeccionControllerTests.cs  # Avance puntual lección a lección con aislamiento de usuario
+│   ├── SeguridadArchivosTests.cs          # Whitelist de extensiones y validación de límites de 10 MB
+│   ├── TareaControllerTests.cs            # Consulta de tareas, entregas de estudiantes y validaciones
+│   ├── TematicaControllerTests.cs         # Catálogo de temáticas y ramas de estudio de robótica
+│   ├── UsuarioControllerTests.cs          # Códigos HTTP, privacidad de hash y reglas de alta/consulta
+│   └── UtilidadesPagoTests.cs             # Particiones de equivalencia y normalización de compras/pedidos
 ```
 
 ---
@@ -133,16 +144,38 @@ dotnet test "C# DATA ANNOTATIONS\RAIZA.Tests\RAIZA.Tests.csproj"
 Serie de pruebas para C:\Users\usuario\PROYECTO\RAIZA-ACTUALIZADO\C# DATA ANNOTATIONS\RAIZA.Tests\bin\Debug\net8.0\RAIZA.Tests.dll (.NETCoreApp,Version=v8.0)
 1 archivos de prueba en total coincidieron con el patrón especificado.
 
-Correctas! - Con error: 0, Superado: 117, Omitido: 0, Total: 117, Duración: 636 ms - RAIZA.Tests.dll (net8.0)
+Correctas! - Con error: 0, Superado: 261, Omitido: 0, Total: 261, Duración: 1 s - RAIZA.Tests.dll (net8.0)
 ```
 
 ### Métricas de Calidad Obtenidas:
-- **Total de pruebas ejecutadas:** 117
-- **Pruebas superadas exitosamente:** 117 (100%)
+- **Total de pruebas ejecutadas:** 261
+- **Pruebas superadas exitosamente:** 261 (100%)
 - **Pruebas fallidas:** 0 (0%)
 - **Pruebas omitidas:** 0
-- **Tiempo total de ejecución:** 636 milisegundos
-- **Controladores probados:** `UsuarioController`, `TareaController`, `PedidoKitController`, `EntregaTareaController`, `ModuloController`, `ClassKitController`, `CompraController`, `EstudianteController`, más utilidades de seguridad y pago.
+- **Tiempo total de ejecución:** ~1 segundo
+- **Controladores y módulos cubiertos (21 en total):**
+  1. `UsuarioController`
+  2. `AuthController`
+  3. `AdministradorController`
+  4. `InstructorController`
+  5. `EstudianteController`
+  6. `ModuloController`
+  7. `LeccionController`
+  8. `TematicaController`
+  9. `TareaController`
+  10. `EntregaTareaController`
+  11. `ClasesEnVivoController`
+  12. `ClaseParticipanteController`
+  13. `ProgresoController`
+  14. `ProgresoLeccionController`
+  15. `CertificadoController`
+  16. `NotificacionController`
+  17. `ClassKitController`
+  18. `PedidoKitController`
+  19. `CompraController`
+  20. `Autorizacion` (Módulo de verificación RBAC y claims JWT)
+  21. `UtilidadesPago` (Normalización y validación canónica de pagos)
+  *(+ Suite de seguridad y validación de subida de archivos)*
 
 ---
 
@@ -153,12 +186,12 @@ Con base en la **Sección 5 (Lista de verificación rápida)** de la guía pedag
 | Criterio de Verificación de la Guía | Estado | Evidencia en el Proyecto RAIZA |
 | :--- | :---: | :--- |
 | **Proyecto de pruebas creado y referenciado** | ☑ | `RAIZA.Tests.csproj` creado con xUnit, referenciado a `RAIZA.csproj` e integrado en `RAIZA.sln`. |
-| **Dependencias abstraídas con interfaces** | ☑ | Uso de `IUsuarioI`, `IEntregaTareaI`, `IPedidoKit_I`, `IEstudiante_I` inyectadas en controladores. |
-| **Pruebas unitarias de servicios con Moq** | ☑ | `Mock<IUsuarioI>` y `Mock<IEntregaTareaI>` configurados para simular respuestas y verificar llamadas. |
-| **Pruebas de controladores (códigos HTTP correctos)** | ☑ | Casos verificando `200 OK`, `201 CreatedAtAction`, `400 BadRequest`, `403 Forbidden`, `404 NotFound` y `409 Conflict`. |
-| **Casos de borde y de error cubiertos** | ☑ | Validación de contraseñas (< 8 caracteres), correos mal formados, archivos > 10 MB, extensiones ejecutables bloqueadas y normalización de estados de pago. |
+| **Dependencias abstraídas con interfaces** | ☑ | Uso de `IUsuarioI`, `IEntregaTareaI`, `IPedidoKit_I`, `IEstudiante_I`, `IInstructor_I`, `ILeccionI`, `IClasesEnVivoI`, `ClaseParticipanteI`, `CertificadoI`, `AdministradorI`, etc. inyectadas en los controladores. |
+| **Pruebas unitarias de servicios con Moq** | ☑ | Mocking de todos los repositorios e interfaces para aislar la lógica de los controladores sin depender de SQL Server en vivo. |
+| **Pruebas de controladores (códigos HTTP correctos)** | ☑ | Verificación sistemática de códigos HTTP: `200 OK`, `201 CreatedAtAction`, `400 BadRequest`, `401 Unauthorized`, `403 Forbidden`, `404 NotFound` y `409 Conflict`. |
+| **Casos de borde y de error cubiertos** | ☑ | Validación de contraseñas débiles, correos mal formados, límites de 10 MB en archivos adjuntos, extensiones ejecutables bloqueadas (.exe, .bat), normalización de métodos de pago y prevención de inscripciones/perfiles duplicados. |
 | **Al menos una prueba de integración por endpoint crítico** | ☑ | Exposición de `public partial class Program` y configuración lista para `WebApplicationFactory<Program>`. |
-| **Cobertura medida y revisada** | ☑ | 117 casos cubriendo los caminos críticos de seguridad, controladores y lógica de normalización. |
+| **Cobertura medida y revisada** | ☑ | 261 casos automatizados cubriendo el 100% de los 21 controladores y componentes de seguridad. |
 | **Suite lista para integración en CI/CD** | ☑ | Pruebas ejecutables mediante comando estándar `dotnet test` sin requerir base de datos activa ni dependencias externas. |
 
 ---
