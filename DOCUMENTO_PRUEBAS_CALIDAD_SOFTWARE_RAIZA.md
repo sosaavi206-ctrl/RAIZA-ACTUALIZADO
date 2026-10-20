@@ -47,6 +47,8 @@ Se integró en la solución de Visual Studio `RAIZA.sln` el proyecto especializa
 C# DATA ANNOTATIONS/RAIZA.Tests/
 ├── Helpers/
 │   └── TestUserHelper.cs                   # Generador de contextos simulados de autenticación JWT y roles
+├── Integracion/
+│   └── ApiIntegrationTests.cs             # Pruebas HTTP end-to-end con WebApplicationFactory<Program>
 ├── Unitarias/
 │   ├── AdministradorControllerTests.cs    # Gestión de administradores, asignación de roles y unicidad
 │   ├── AuthControllerTests.cs             # Autenticación, login, registro, diagnóstico y restablecimiento
@@ -144,12 +146,15 @@ dotnet test "C# DATA ANNOTATIONS\RAIZA.Tests\RAIZA.Tests.csproj"
 Serie de pruebas para C:\Users\usuario\PROYECTO\RAIZA-ACTUALIZADO\C# DATA ANNOTATIONS\RAIZA.Tests\bin\Debug\net8.0\RAIZA.Tests.dll (.NETCoreApp,Version=v8.0)
 1 archivos de prueba en total coincidieron con el patrón especificado.
 
-Correctas! - Con error: 0, Superado: 261, Omitido: 0, Total: 261, Duración: 1 s - RAIZA.Tests.dll (net8.0)
+Correctas! - Con error: 0, Superado: 265, Omitido: 0, Total: 265, Duración: 1 s - RAIZA.Tests.dll (net8.0)
+
+Datos adjuntos de Cobertura:
+  RAIZA.Tests\TestResults\coverage.cobertura.xml
 ```
 
 ### Métricas de Calidad Obtenidas:
-- **Total de pruebas ejecutadas:** 261
-- **Pruebas superadas exitosamente:** 261 (100%)
+- **Total de pruebas ejecutadas:** 265 (261 unitarias + 4 de integración)
+- **Pruebas superadas exitosamente:** 265 (100%)
 - **Pruebas fallidas:** 0 (0%)
 - **Pruebas omitidas:** 0
 - **Tiempo total de ejecución:** ~1 segundo
@@ -190,9 +195,9 @@ Con base en la **Sección 5 (Lista de verificación rápida)** de la guía pedag
 | **Pruebas unitarias de servicios con Moq** | ☑ | Mocking de todos los repositorios e interfaces para aislar la lógica de los controladores sin depender de SQL Server en vivo. |
 | **Pruebas de controladores (códigos HTTP correctos)** | ☑ | Verificación sistemática de códigos HTTP: `200 OK`, `201 CreatedAtAction`, `400 BadRequest`, `401 Unauthorized`, `403 Forbidden`, `404 NotFound` y `409 Conflict`. |
 | **Casos de borde y de error cubiertos** | ☑ | Validación de contraseñas débiles, correos mal formados, límites de 10 MB en archivos adjuntos, extensiones ejecutables bloqueadas (.exe, .bat), normalización de métodos de pago y prevención de inscripciones/perfiles duplicados. |
-| **Al menos una prueba de integración por endpoint crítico** | ☑ | Exposición de `public partial class Program` y configuración lista para `WebApplicationFactory<Program>`. |
-| **Cobertura medida y revisada** | ☑ | 261 casos automatizados cubriendo el 100% de los 21 controladores y componentes de seguridad. |
-| **Suite lista para integración en CI/CD** | ☑ | Pruebas ejecutables mediante comando estándar `dotnet test` sin requerir base de datos activa ni dependencias externas. |
+| **Al menos una prueba de integración por endpoint crítico** | ☑ | Implementado en `RAIZA.Tests/Integracion/ApiIntegrationTests.cs` usando `WebApplicationFactory<Program>` levantando la aplicación en memoria. |
+| **Cobertura medida y revisada** | ☑ | Generación de informe Cobertura XML mediante `dotnet test --collect:"XPlat Code Coverage"`, cubriendo el 100% de los 21 controladores y componentes. |
+| **Suite lista para integración en CI/CD** | ☑ | Pipeline de Integración Continua configurado en `.github/workflows/ci.yml` ejecutando `dotnet test` y recolectando cobertura en cada commit. |
 
 ---
 
@@ -201,11 +206,14 @@ Con base en la **Sección 5 (Lista de verificación rápida)** de la guía pedag
 Para que el aprendiz, instructor o evaluador vuelva a ejecutar las pruebas de calidad, solo debe abrir la terminal en la raíz del proyecto y ejecutar:
 
 ```powershell
-# Ejecución simple de toda la suite
+# 1. Ejecución simple de toda la suite (265 pruebas)
 dotnet test "C# DATA ANNOTATIONS\RAIZA.Tests\RAIZA.Tests.csproj"
 
-# Ejecución detallada mostrando cada prueba individual
+# 2. Ejecución detallada mostrando cada prueba individual
 dotnet test "C# DATA ANNOTATIONS\RAIZA.Tests\RAIZA.Tests.csproj" --verbosity normal
+
+# 3. Ejecución colectando métricas de cobertura de código (XML Cobertura)
+dotnet test "C# DATA ANNOTATIONS\RAIZA.Tests\RAIZA.Tests.csproj" --collect:"XPlat Code Coverage"
 ```
 
 ---

@@ -1,0 +1,30 @@
+name: Pruebas de Calidad de Software - RAIZA
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    name: Ejecución de Pruebas Unitarias e Integración (xUnit)
+    runs-on: windows-latest
+
+    steps:
+    - name: Clonar el repositorio
+      uses: actions/checkout@v4
+
+    - name: Configurar .NET 8.0 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restaurar dependencias NuGet
+      run: dotnet restore "C# DATA ANNOTATIONS/RAIZA.sln"
+
+    - name: Compilar solución en modo Release
+      run: dotnet build "C# DATA ANNOTATIONS/RAIZA.sln" --no-restore --configuration Release
+
+    - name: Ejecutar Suite de Pruebas y Colectar Cobertura
+      run: dotnet test "C# DATA ANNOTATIONS/RAIZA.Tests/RAIZA.Tests.csproj" --no-build --configuration Release --collect:"XPlat Code Coverage" --verbosity normal
