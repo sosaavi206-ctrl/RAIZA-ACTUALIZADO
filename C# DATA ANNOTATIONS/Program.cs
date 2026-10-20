@@ -153,21 +153,28 @@ public partial class Program
         // 3) Revisa en el log "Contraseñas migradas a BCrypt: N".  4) BORRA este bloque.
         // (Es seguro ejecutarlo más de una vez: solo toca filas que todavía no son hash.)
         // ==================================================================
-        using (var scope = app.Services.CreateScope())
+        try
         {
-            var db = scope.ServiceProvider.GetRequiredService<DatabaseService>();
-            var pendientes = db.Usuario.AsEnumerable()
-                .Where(u => !string.IsNullOrEmpty(u.ContrasenaHash)
-                            && !(u.ContrasenaHash.Length == 60 && u.ContrasenaHash.StartsWith("$2")))
-                .ToList();
-
-            foreach (var u in pendientes)
+            using (var scope = app.Services.CreateScope())
             {
-                u.ContrasenaHash = BCrypt.Net.BCrypt.HashPassword(u.ContrasenaHash);
-            }
+                var db = scope.ServiceProvider.GetRequiredService<DatabaseService>();
+                var pendientes = db.Usuario.AsEnumerable()
+                    .Where(u => !string.IsNullOrEmpty(u.ContrasenaHash)
+                                && !(u.ContrasenaHash.Length == 60 && u.ContrasenaHash.StartsWith("$2")))
+                    .ToList();
 
-            if (pendientes.Count > 0) db.SaveChanges();
-            app.Logger.LogWarning("Contraseñas migradas a BCrypt: {N}", pendientes.Count);
+                foreach (var u in pendientes)
+                {
+                    u.ContrasenaHash = BCrypt.Net.BCrypt.HashPassword(u.ContrasenaHash);
+                }
+
+                if (pendientes.Count > 0) db.SaveChanges();
+                app.Logger.LogWarning("Contraseñas migradas a BCrypt: {N}", pendientes.Count);
+            }
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogWarning("Omitiendo migración inicial de contraseñas: {Mensaje}", ex.Message);
         }
 
         app.Run();

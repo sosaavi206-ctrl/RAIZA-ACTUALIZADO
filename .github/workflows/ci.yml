@@ -11,6 +11,14 @@ jobs:
     name: Ejecución de Pruebas Unitarias e Integración (xUnit)
     runs-on: windows-latest
 
+    env:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__CadenaConexion: "Server=(localdb)\\mssqllocaldb;Database=RaizaDevDb;Trusted_Connection=True;"
+      Jwt__Key: "ClaveSecretaDeDesarrolloYPruebasSuperLarga2026!"
+      Jwt__Issuer: "RaizaBackend"
+      Jwt__Audience: "RaizaFrontend"
+      Recaptcha__SecretKey: "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+
     steps:
     - name: Clonar el repositorio
       uses: actions/checkout@v4
