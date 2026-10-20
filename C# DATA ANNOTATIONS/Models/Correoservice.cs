@@ -1,4 +1,4 @@
-﻿using MailKit.Net.Smtp;
+using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 
@@ -37,6 +37,16 @@ namespace RAIZA.Services
                 throw new InvalidOperationException("Falta la configuración Correo:Host");
             }
 
+            var usuario = _config["Correo:Usuario"];
+            var clave = _config["Correo:Clave"];
+
+            if (string.IsNullOrWhiteSpace(usuario) || string.IsNullOrWhiteSpace(clave))
+                throw new InvalidOperationException("Falta la configuración Correo:Usuario o Correo:Clave");
+
+            var remitente = _config["Correo:Remitente"];
+            if (string.IsNullOrWhiteSpace(remitente))
+                remitente = usuario;
+
             var asunto = esVerificacion
                 ? $"{codigo} es tu código para verificar tu cuenta en RAIZA"
                 : $"{codigo} es tu código para recuperar tu contraseña en RAIZA";
@@ -44,7 +54,7 @@ namespace RAIZA.Services
             var mensaje = new MimeMessage();
             mensaje.From.Add(new MailboxAddress(
                 _config["Correo:NombreRemitente"] ?? "RAIZA",
-                _config["Correo:Remitente"] ?? _config["Correo:Usuario"]));
+                remitente));
             mensaje.To.Add(new MailboxAddress(nombre, destino));
             mensaje.Subject = asunto;
             mensaje.Body = new BodyBuilder
@@ -56,7 +66,7 @@ namespace RAIZA.Services
             using var smtp = new SmtpClient();
             var puerto = int.TryParse(_config["Correo:Puerto"], out var p) ? p : 587;
             await smtp.ConnectAsync(host, puerto, SecureSocketOptions.StartTls);
-            await smtp.AuthenticateAsync(_config["Correo:Usuario"], _config["Correo:Clave"]);
+            await smtp.AuthenticateAsync(usuario, clave);
             await smtp.SendAsync(mensaje);
             await smtp.DisconnectAsync(true);
         }
